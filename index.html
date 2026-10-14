@@ -253,9 +253,9 @@ footer b{color:var(--ink)}
         <div class="gt"><span class="n">5</span>Precios</div>
         <div class="field">
           <label for="prd">Precio RD <small>$/kWh</small></label>
-          <div class="inrow"><input type="range" id="prd_r" min="0" max="2500" step="10" disabled><input type="number" id="prd" min="0" step="10" readonly></div>
+          <div class="inrow"><input type="range" id="prd_r" min="0" max="3000" step="10"><input type="number" id="prd" min="0" max="3000" step="10"></div>
         </div>
-        <p class="hint" style="background:#FDEBDD;border-left:3px solid #F58220;padding:8px 10px;border-radius:6px"><b>$861/kWh</b> es el precio promedio ponderado de la franja de 6 p. m. a 9 p. m. <b>El precio depende netamente del mercado y puede variar diariamente.</b></p>
+        <p class="hint" style="background:#FDEBDD;border-left:3px solid #F58220;padding:8px 10px;border-radius:6px">Puede modificar el precio RD entre <b>$0 y $3.000/kWh</b>. El <b>promedio ponderado de la franja de 6 p. m. a 9 p. m. es $861/kWh</b> (valor de referencia). <b>El precio depende netamente del mercado y puede variar diariamente.</b> <button type="button" class="chip" id="prd861" style="margin-left:6px">Volver a $861</button></p>
         <p class="hint">Margen JULIA-RD: <b>10 %</b> (fijo) · GMF: <b>4 × 1.000</b> · Precio neto para usted: <b id="netoCalc">—</b></p>
         <p class="hint" id="tarHint"></p>
         <div id="provBox">
@@ -357,7 +357,7 @@ footer b{color:var(--ink)}
 
   <footer>
     <b>Cómo se calcula.</b> Línea base horaria (LBCh) de cada tienda: consumo esperado en cada una de las 24 horas (hora 0 a hora 23, día miércoles, usado como referencia para todos los días del mes); consumo diario = suma de las 24 horas y consumo mensual = consumo diario × días facturados. Energía reducida por día de RD = suma de la línea base de las horas seleccionadas (se asume que en esas horas la tienda reduce toda su línea base). Energía reducida al mes = energía por día × días de participación en RD. Con varias tiendas seleccionadas, cada tienda se calcula con su propio CU y su propia línea base, y los resultados se suman.
-    Sobrecosto = consumo mensual × incremento por restricciones. Ingreso neto RD = energía reducida × precio RD − margen JULIA-RD (10 %) − GMF (4 × 1.000). Con encendido de planta: beneficio = ingreso neto RD − energía reducida × costo de generación (según el proveedor de combustible elegido: proveedor actual o JULIA-RD) + energía reducida × tarifa de energía (CU de la tienda + restricciones). Con mantenimiento o parada programada: beneficio = ingreso neto RD. Precio RD fijo en $861/kWh (promedio ponderado de la franja de 6 p. m. a 9 p. m.): el precio depende netamente del mercado y puede variar diariamente. Cifras ilustrativas: la CREG 101 127 de 2026 no fija un valor de incremento; el efecto real depende de la condición del sistema y del despacho térmico fuera de mérito.
+    Sobrecosto = consumo mensual × incremento por restricciones. Ingreso neto RD = energía reducida × precio RD − margen JULIA-RD (10 %) − GMF (4 × 1.000). Con encendido de planta: beneficio = ingreso neto RD − energía reducida × costo de generación (según el proveedor de combustible elegido: proveedor actual o JULIA-RD) + energía reducida × tarifa de energía (CU de la tienda + restricciones). Con mantenimiento o parada programada: beneficio = ingreso neto RD. Precio RD de referencia: $861/kWh (promedio ponderado de la franja de 6 p. m. a 9 p. m.), modificable entre $0 y $3.000/kWh: el precio depende netamente del mercado y puede variar diariamente. Cifras ilustrativas: la CREG 101 127 de 2026 no fija un valor de incremento; el efecto real depende de la condición del sistema y del despacho térmico fuera de mérito.
     <br><br>© JULIA-RD · Respuesta de la Demanda
   </footer>
 </div>
@@ -474,10 +474,11 @@ footer b{color:var(--ink)}
   }));
 
   // ---------- entradas numéricas ----------
+  $('prd861').addEventListener('click', () => { S.prd = 861; sync(); calc(); });
   ids.forEach(k => {
     const n = $(k), r = $(k+'_r');
     const set = (v, src) => {
-      v = parseFloat(v); if (isNaN(v) || v < 0) v = 0; S[k] = v;
+      v = parseFloat(v); if (isNaN(v) || v < 0) v = 0; if (k === 'prd' && v > 3000) v = 3000; S[k] = v;
       sync(src); calc();
     };
     n.addEventListener('input', e => set(e.target.value, k));
